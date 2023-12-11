@@ -1,0 +1,146 @@
+<script type='text/javascript'
+src='https://stackpath.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.bundle.min.js'></script>
+<script type='text/javascript'>// For Filters
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    const checkboxes = document.querySelectorAll('.restrict-checkbox');
+    const maxAllowed = 1; // Change this to limit the number of selections
+
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', () => {
+            const checkedCheckboxes = document.querySelectorAll('.restrict-checkbox:checked');
+            if (checkedCheckboxes.length > maxAllowed) {
+                checkbox.checked = false;
+            } 
+        });
+    });
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    const checkboxes = document.querySelectorAll('.limit-checkbox');
+    const maxAllowed = 1; // Change this to limit the number of selections
+
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', () => {
+            const checkedCheckboxes = document.querySelectorAll('.limit-checkbox:checked');
+            if (checkedCheckboxes.length > maxAllowed) {
+                checkbox.checked = false;
+            } 
+        });
+    });
+});
+
+
+function showChecked() {
+    
+    const currentPath = window.location.pathname;
+    let dynamicURL = '';
+    switch (currentPath) {
+        case '/automobile':
+            dynamicURL = '{% url 'automobile' %}';
+            break;
+        case '/electronic':
+            dynamicURL = '{% url 'electronic' %}';
+            break;
+        // Add cases for other URLs as needed
+        default:
+            dynamicURL = '{% url 'home' %}';
+            break;
+    }
+    const checkboxes = document.querySelectorAll('input[name="selected_items"]:checked');
+    const checkbox = document.querySelectorAll('input[name="selected_states"]:checked');
+    const checkedItems = document.getElementById('checkedItems');
+    const checkedStates = document.getElementById('checkedStates');
+    checkedItems.innerHTML = '';
+    checkedStates.innerHTML = '';
+    const checkvalues = [];
+    const checkvalue = [];
+    checkedItems.innerHTML = ''; // Clear the previous content
+
+    checkboxes.forEach((checkbox) => {
+        checkvalues.push(checkbox.value);
+        const li = document.createElement('li');
+        li.textContent = checkbox.value;
+        checkedItems.appendChild(li);
+    });
+    checkbox.forEach((check) => {
+        checkvalue.push(check.value);
+        const li = document.createElement('li');
+        li.textContent = check.value;
+        checkedStates.appendChild(li);
+    });
+    for (let i = 0; i < checkvalues.length; i++) {
+        console.log(checkvalues[i]);}
+
+    const dataToSend = {
+            checkvalues: checkvalues,
+            checkvalue: checkvalue
+        };
+
+    console.log(dynamicURL);
+    const csrfToken = getCookie('csrftoken'); 
+
+    fetch(dynamicURL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrfToken
+        },
+        body: JSON.stringify(dataToSend),
+      })
+      .then(response => {
+        if (response.ok) {
+          return response.json();
+        }
+        throw new Error('Network response was not ok.');
+      })
+      .then(data => {
+        UpdatedFilterData(data);
+         // Handle success response from Django
+      })
+      .catch(error => {
+        console.error('Error:', error); // Handle error
+      });
+    }
+
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) {
+            return parts.pop().split(';').shift();
+        }
+    }
+
+document.addEventListener("DOMContentLoaded", function () {
+    var filterBtn = document.getElementById('filter-btn');
+    var btnTxt = document.getElementById('btn-txt');
+    var filterAngle = document.getElementById('filter-angle');
+
+    $('#filterbar').collapse(false);
+    var count = 0, count2 = 0;
+    function changeBtnTxt() {
+        $('#filterbar').collapse(true);
+        count++;
+        if (count % 2 != 0) {
+            filterAngle.classList.add("fa-angle-right");
+            btnTxt.innerText = "show filters"
+            filterBtn.style.backgroundColor = "#36a31b";
+        }
+        else {
+            filterAngle.classList.remove("fa-angle-right")
+            btnTxt.innerText = "hide filters"
+            filterBtn.style.backgroundColor = "#ff935d";
+        }
+
+    }
+
+    
+});</script>
+
+<script type='text/javascript'>var myLink = document.querySelector('a[href="#"]');
+myLink.addEventListener('click', function (e) {
+    e.preventDefault();
+});</script>
+<script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+

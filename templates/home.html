@@ -1,0 +1,689 @@
+
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <title>FloorWalk</title>
+    <link href='https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css' rel='stylesheet'>
+    <link href='https://stackpath.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.bundle.min.js' rel='stylesheet'>
+    <link href='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js' rel='stylesheet'>
+    <link href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css' rel='stylesheet'>
+    <style>
+
+        *{
+            box-sizing: border-box;
+        }
+        body{
+            color: grey;
+        }
+        #sidebar{
+            width: 20%;
+            padding: 10px;
+            margin: 0;
+            float: left;
+        }
+        
+        @media(min-width:991px){
+            .navbar-nav{
+                margin-left: 5%;
+            }
+            .nav-item{
+                padding-left: 20px;
+            }
+        }
+
+        @media(min-width:768px) and (max-width:991px){
+            .navbar-nav{
+                margin-left: 20%;
+            }
+            .nav-item{
+                padding-left: 10px;
+            }
+        }
+
+        @media(min-width:568px) and (max-width:767px){
+            .navbar-nav{
+                margin-left: 20%;
+            }
+            .nav-item{
+                padding-left: 10px;
+            }
+        }
+
+        @media(max-width:567px){
+            .navbar-nav{
+                margin-left: 0%;
+            }
+            .nav-item{
+                padding-left: 10px;
+            }
+            #sidebar{
+                width: 100%;
+                padding: 10px;
+                margin: 0;
+                float: left;
+            }
+            
+            #sidebar{
+                display: none;
+            }
+        }
+
+        header {
+            background-color: rgb(239, 235, 235);
+            padding: 10px; /* Padding around the content */
+            border: 1px solid #ccc; /* Border style */
+            border-radius: 5px; 
+            width: 200px;
+        }
+
+        .scrollable-list {
+            max-height: 200px; /* Set a maximum height */
+            max-width: 200px;
+            overflow-y: auto; /* Enable vertical scrolling */
+            padding-right: 15px; /* Add some padding to accommodate scrollbar */
+            scrollbar-width: thin; /* Set the width of the scrollbar */
+            scrollbar-color: rgba(0, 0, 0, 0.5) rgba(0, 0, 0, 0);
+            border: 1px solid #ccc; /* Add your desired border style */
+            padding: 10px; /* Adjust padding as needed */
+            margin-bottom: 20px; /* Optional: Add space between the box and other elements */
+        }
+
+        .scrollable-list::-webkit-scrollbar {
+            width: 8px; /* Set the width of the scrollbar */
+        }
+        
+        .scrollable-list::-webkit-scrollbar-thumb {
+            background-color: rgba(0, 0, 0, 0.5); /* Set the color of the scrollbar thumb */
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        /* Track */
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        /* Handle */
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+        }
+
+        /* Handle on hover */
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        .tick {
+            display: block;
+            position: relative;
+            padding-left: 23px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin: 0
+        }
+
+        .tick input {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+            height: 0;
+            width: 0
+        }
+
+        .check {
+            position: absolute;
+            top: 1px;
+            left: 0;
+            height: 18px;
+            width: 18px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 3px
+        }
+
+        .check:after {
+            content: "";
+            position: absolute;
+            display: none
+        }
+
+        .tick input:checked~.check:after {
+            display: block;
+            transform: rotate(45deg) scale(1)
+        }
+
+        .tick .check:after {
+            left: 6px;
+            top: 2px;
+            width: 5px;
+            height: 10px;
+            border: solid rgb(0, 0, 0);
+            border-width: 0 3px 3px 0;
+            transform: rotate(45deg) scale(2)
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: left;
+            align-items: center;
+            margin-top: 20px; /* Adjust margin as needed */
+            
+        }
+        
+        .pagination a {
+            padding: 8px 16px;
+            margin: 0 4px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            text-decoration: none;
+            color: #333;
+            background-color: #fff;
+        }
+        
+        .pagination a:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .pagination .current {
+            margin: 0 8px;
+        }
+
+        table {
+            
+            width: 90%; /* Adjust this value as needed */
+        }
+
+        th, td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }   
+
+        .mapholder{
+            margin-left: 20%;
+            margin-top: 2%;
+        }
+
+        
+        
+    </style>
+</head>
+<body>
+    
+    <nav class="navbar navbar-expand-sm navbar-light bg-white border-bottom">
+        <a class="navbar-brand ml-2 font-weight-bold" href="#">
+            <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBxMREhUQEhMVFRUWGRgZGBUYFxcdGRoWGBYWFxgVFRgYHyggGBolGxUYITIhJSkrLi4uFx8zODMtNygtLisBCgoKDg0OGxAQGy0lHyUrKy0tLS0uLS0rLSstLS4rLS0tLS0rLS0tKy0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tK//AABEIAK4BIgMBIgACEQEDEQH/xAAbAAEAAgMBAQAAAAAAAAAAAAAABgcDBAUCAf/EAEMQAAEDAQMHBwgKAgEFAAAAAAEAAgMRBCExBQYSQVFxkRMiUmFygbEyNIKSobLB0QcUFiMzQlNiouHC8BVDVNLi8f/EABoBAQADAQEBAAAAAAAAAAAAAAACAwQFAQb/xAA4EQACAQIEAgcGBAYDAAAAAAAAAQIDEQQSITFBUQUTMoGRwfAiYXGhsdEzQsLhIyQ0UnKCFBVi/9oADAMBAAIRAxEAPwC8UREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQGtbLW2IBzq0JpcNdCfgtP8A56Ha7h/a8ZzfhjtDwKjVK3BcTHdIVqFbJC1rLh+6BJ/tBDtdw/tPtBDtdw/tRo2Z/Qfw/peTZn9B/D+lQuksXyXg/uRbJN9oYf3cP7XSgmD2h7cHCoqoMbM/oP4H5KY5KaRCwEUOiLiuhgsVWrSaqLhysIu5hteWoonljq1FMBtFfivNly5FI8Rt0quwqOqu3qUezj84f6PuhY8gecR7z7pVbxlXr8mls1tuF7Ec7vYnSIi6xYERR/ODLvJfdR+XrPR+ZUJzUFmkeSkoq7Opbcoxwisjw3qxJ3AXrjzZ3RDyWPd13D4qIyyFxLnEknEk1K8NaTcATuCxSxU32dDLLES4EwizviPlMeOsUPxXYsWUopvw3gnZgeBvVayMIuII3ii+MkLSHNJBGBBoRuKnDES46kViJLcthFGc2s4OVpDKef8Ald0uo/u8VJlsjJSV0a4TUldBEUPznzlLSYIDQi5zxqPRb19aN2PKlRQV2d/KOWYILpHgHoi93AYd64sue0QPNiees6I+JUHc4k1N5Os/FGRl3kgncCfBeJ3ME8ZN7aE7hz2gJo9r29dAR7DX2Lu2G3xTjSieHDqxG8G8d6qR7SLiCDsK+wWh0bg9ji1wwIP+1HUrEiMcbJP2tUXKijua+cItI5N9BK0dzh0h17R/okSi1Y6UJxms0diNy55WZri06dWkg83WDQ615+29l/f6n9qv8pfiydp3vFYGWd7hVrHEbQ0kexaVSizkyx1VO2ngWN9uLL+/1f7WxZ877G805XRP7muA40oOKrJ1jk6DuDvktYqxYaDI/wDYVk9UvD9y8IZWvAc1wcDgQQRxCyqmMj5Zlsr9OJ12thwdvG3rxVr5Gyky1RNmZgcRra4YtKoq0XT14G/DYuNbTZ8joIiKk1hERAEREBx85vwh2h4FcCwfix9oeK7+dH4Q7Q8HKO2N4EjCTQB1Seqq+b6R/rE/8TwnSLT/AOUh/Uan/KQ/qN4r6Hr4f3LxX3FzcRa0NsjkNGPDiL6ArZUlJSV07npCc5POH+j7oWPIHnEe8+6V7zl84f6PuhY8gecR7z7rlwX/AFP+/wCozvtd5O0RF3zQaeVLZyMTpNYFw6zcPaq5e8uJcTUk1J2k4lS3PWSkcbdrieA/9lE449JwaPzEDiaLm4uV6mXl9TLXleVjuZvZB5YcrL5GpvS6z1eKmEELWDRY0NGwADwSGMMaGtuDQAB1C5ZVupUlTVkXwgooxTQteNF7Q4bCAR7VDs5c3xEDNF5H5m9HrHV4eE2WOSMOBaRUEEEdRUpQUtxUpqa1Kna4ggg0IvBGojAhWZkW3cvC2TWbndoXH596ra1RaD3s6LnN9UkfBS3MGarZWagWu9YEf4qmlo7GLDSanbn5HUzlygYIHOaaPdzW9ROJ7hU8FWpKlmf83PiZsaXcTT/FR3JNmEs8cZwc4V3C8+wFWPVkcTJyqZe4kebObLXtE84qDe2Pq1OdtrsUxija0aLQGgYAAAcAsiKw3U6caasjWtVkZK3RkY1w2EV4bFX2dGb31Y8pHUxE0vxadhOsbCrKWplOyiaJ8Rwc0jvpce40PcvU7EK9BVY+/gVHZbS6J7ZGGjmmo+W44d6t3J9rE0TJW4PaDu2juNypwqxvo/m0rLo9B7gNxo7xcVbUWlzDgKlpuPNX8Cv8p/iydp3vFWD9H3mg7bvgq9yn+LL2ne8VYP0e+aDtu+CnVXsEcF+O+/6ok642X8hR2phBaBJTmyUvB1V2jqXZWrb7Y2GN0rzRrRU/ADrJuWeLad1udWajKLUtikngg0OIuO8KZ/RlaiJJYq3EBwHW0hpP8hwChs0mk4u2kniaqW/RjETPK/U1mj3uc0j3SurXX8KV/Wp89g2+vjb1oyyURFyT6MIiIAiIgOPnR+EO0PByixUozp/CHbHg5R6wisrAek3xXzfSUc2KtzSRBmqSvJKsD6szoN4BPqrOg3gFoXREl+deH7hxI3mj+I/s/EKVLEyFrfJaBuACyrqYWj1NNQbvv8ySVkQfObzh/o+6Fizf85j3n3XLLnN5w/0fdCw5AdS0Rk3Xn3SuU1/Mv/P9Rnfb7yfIsXLs6TeITl2dJvELumkj+ezOZG7Y4jiK/wCKicMui5r+iQeBqrAyvZRPC5gIJxaf3C8fLvVduFLjiudiYtTzczJXTUrlpMeCAReCKg9RXtQ/NvLzWAQTGgHkPOAHRds6ipcDW8XhboTU1dGmE1NXR6XlzgASbgMUJpeVD8584WuaYITWtz3jCnRadfWV7KSjueTmoK7IxbJtOR7+k5zvWcT8VKswIzSZ+olg4BxPvBQ9WZm9YOQgaw+Uec7tHV3XDuVVNa3MWGTc78iNfSBFSSJ+otI4Gv8AkuDkW0CO0RPOAcK7jzSfapznbk8zQEtFXM5w6x+YcPAKuCrbaleJTjVzd5ciKJZr5ytc1sMzqPFzXnBw1AnU7xUtUjo06kaivELXt1oEUb5Dg1pPALJLIGgucQAMSTQDeVX+d2cYm+4hP3YPOd0iMAP2j2+MoxuyFesqUbvfgRUlWL9H0dLMXdJ7iO4BviCq9iic9wY0Vc4gAbSbgreyVYhBCyEflaATtOLj3kkq2q7Kxz+j4fxM3JFR5T/Gk7T/AHit3Jmcc9mZycRaG1JvbW8//FpZT/Gk7TveK6+Qc1XWuIytlawBxbQtJwANa161peVR9rYyQVR1Gqe+ux8dnta+k31QuRlLK09o/Gkc6mAuDRuaKBdzK+ZcsETphIJA28tDSDo63Y30xUVKtpKm9Y2I15V17NVvx9I92eB0jgxjS5xwaBUlWxmrkT6pDouoZHc55G3U0dQ+a5+YNpgfDRjGslbQSUxdsfU3kH2GvUpasuJrSbyWsdLA4aMV1t7truXnfgwiIsh0QiIgCIiA42c4JibQE84YbiuBYIncrHzT5Q1HaFOEXPr4BVaqq5rbaW5d540ERF0D0IiICE5yRONoeQ0nycAeiFyjA7ou4FWM+drbi5oPWQF8FpYbg9td4XPngVKTk5btvZce8qdJN3uVwbO7oO9UrybO7oO9Uqz0XqwEVx+RHqFzOLmm0izgEEc51x3rQzlyCXkzRCp/Mwa/3N6+pSWSZrfKcBvIHisf1uPps9YLV1Ucig+BNwTjlZWZs7+g71SssEs8dzDI0bBpAcMFZccgcKtII2g1WRVrDJcSn/jf+ir7TNaJLnmRw2HTI4YLVNnf0HeqVbS1/rkf6jPWHzUup9548LfeRF8183iCJ5hQi9jDjXpO+AUwWOKZrvJcHU2EHwWRXJW0NFOCgrIKCZ05tuaTNA2rDe5gxadZaNbfDdhM/rcf6jPWHzT65H+oz1h816Rq041I2ZUhsz+g/wBU/JbVntNqjFGOmaNg0qcMFbKL25mWBtqpPwKhtT7RJ+IZX9rSPAHBawskhuEbvVd8lcj3gCpIA2nBYfr0f6jPWb81NVLcCLwCe8/l+5HM0c2uQ+/mH3h8lvQB2/uPsUsWOKVrhVpDhtBB8FkUG77m2lTjTjaJTWUrM/lZOY7ynfld0j1Ke/R9GW2UhwIOm64gjU3apQitnWzRtYzUcGqVTPmvvw5nkitxVVZ3ZvOs81Y2kxPqW0BOidbTTZq6j1K11gltTG3Oe1p2FwB9q8pVXTldFmJw8a0bPS3EqDI1onsszZmMddc5tHc4HFpu/wBICt6x2lsrGyNrRwBFRQ7iNRXn6/F+rH67fms0cgcKtIIOBBqOKlXrdZrlsQwuH6i6Urp/XxMiIioNYREQBERAEREAREQBERARnPKy1ayXYdE7jePaDxUVa4ghwuINRvCsTKll5WJ7NZF28Xj2hV0VycZTSqZuf1MtZWdyyrLOJGNkGDgDx1LOo/mfatKIxnFh/i68e2q7VpnEbHPODQTwFV06c80FI0RldXIRnbatOct1MAb34nxp3LhlZJpC5xccXEk7yaleXMIAdS41odtKV8RxXNbzScuZz5vM2yUZjWq+SE9Tx4O/xUvVZZEtfJTxv1Voeybj417lZq30HeNuRrw8rwtyORnRa+SszyMXcwelcfZVVsQpVn3a6vZCMGjSO83D2D2qN2OzmWRkYxc4DjieC8nrIyYl5qllw0J7mhY+TszTrfzzuPk/xAXQyta+Rhkl6LTTtYNHEhbMbA0BouAAAHUFFc/rXRjIR+Y6R3Nw9p/ir9kbJPqqWnBfMg5XncvbWkkNF5JAA6zcF5kaQSDcQaEdYuIXsTjNItnI9s5aCOXpNFe0LnDiCt5Q/wCj22VjfCT5J0hudj7R7VMEaO1RnngpHLzl81n7BVRkK3M5vNJ+wVUZV9HZnO6Q7cfh5lkfR95oO274KUKL/R95oO274KUKmfaZ0MN+DH4L6BEWtbLWyJjpJDotaKk/7iVEuvbc0sv5XZZIjI692DG63O2btZKqC3Wp00jpZDpOcak/AbABd3Lezhyw+1ymR1zRcxvRb8ziT8l5zfyM+1yiNtzRe9+prfmcAPkV1aFJUY5pb8fcfPYqu8TNRgtOC5+/7clrc3M0c3Da5NJwpCw849I9FvxOobwrZhjDQGtAAAAAGAAuACwWCxMhjbFGKNaKAeJO0nGq21hr13Vl7uB18JhY0IWW73frggiIqDUEREAREQBERAEREAREQBV5l6zclO9uonSG51/jUdysNRfPWzXMlGqrT33jwPFZcXDNTvyKqyvE5matr0JwDg8aPfiPaKd67meNq0IdAYyGncLz8OKhbZC0hwxBBG8GoXSzlyiJ5GlvktaKbyNI+IHcs9Kpak4+tShVLQaOQVK8sZL0bDHdzo6Od6Z5w4kcFwsh2TlZ42aq1O5t58Kd6sW0Qh7XMODgQdxFFdQp3i/AUaeaL8CqCrLyFbOVgZITfSjt7bj4V71W00RY5zHYtJB3g0K62Scq8lZrRHW91NDe7mupuFCpUnlepVQqZJa+ranOyra+Wmkk6TjTsi5vsAXYzGselM6U4Rtu7TrvDSUbKsPM6x8nZmuOLyXHdg32AHvVkFdnlBZql38fXed5VjnZbOVtLyMG80ejj7aqwsqWrkYXy9FpI36hxoqlJ1nFXFmNnoo952c0LJytqYSLmc893k/yI4L5nhZOStT6YPo4d/lfyB4qR5gWPRifMRe91B2W/wBk8F5+kCxaUTJhix1D2XXe8BxUluVul/LX47+X0I3mlbeStTCcH807nYfyDVaKpStLxireyTa+Whjl6TQT2vzDjVezXElgZ6OPf9zXzm81n7B8FUZVuZzeaT9gqoir6GzKeke3H4eZZX0feaem74KUKMfR75oO27/FSdUVO2zoYb8GPwX0PlVVuemcX1l/JRn7lh9d3S3DVxVnyxhwLXCoIIIOBBuIKqbOvN82OS6pif5Dtn7XdY9o71fhFHPrvwMvSLqKn7O3Hy7r+RysnWF88jYYxVzj3Aa3HYAreyHkhlkiETL9bna3O1k/AKqchZXfZJhKy8YOb0m7N+wq38nW1k8bZYzVrhd1bQdhBuVuNc1Zfl8yjoxU3d/m8vd5+BtoiLAdcIiIAiIgCIiAIiIAiIgCIiALRyvZeVhezWRUdoXj2hbyLxpNWYavoVTVeSujl6y8lO9uqukNzr/mO5c0rlZcrszmyVnZkrzHsn4kx7A8XfBS5c7IVk5KCNmulTvdefGncuiunTjlikb6UcsUiv8APKycnaNIYSDS7xcfge9cAqeZ7WTTgEgxjNfRdcfbTgoEVVKNpHPxEctR+PrvMtls5kkZGMXOA4nFWvFGGtDRcAABuAoFBcx7JpzmQ4Ri7tOqB7NJT5WwWhowkLRcufkRPP8AtujGyEYvOkey3+yOCgoBNwvJwHWuzndbeVtL6YM5o9HH+VV8zRsfK2plcGc4+jh/IhTRjrN1a1lzt6+ZYeTbKIYmRD8rQO/WeNV8yrZBNC+I/maQN+o8aLcRDrZVa3ApN4IJBxFx3hTz6PLbpRPgOLDpDsux9oPFR3PGxclan0Fz+cPS8r+VV5zNt3JWplcH1afSpT+QC0NZoHGot0q9nzs/XgWBnN5pP2HeCqAq3s5/NJ+w7wVQlTw+zJ9I9uPw8yzPo980Hbd8FJ1TNiy3aIG6EUpY2pNAG4nE3hbH2qtn/cO9VnyXssNKUm7kqXSFOFOMWnovd9y3lp5SsLLRG6KQVa4d4OojYQq4yJnHa5LRCx07i1z2AijbwXAEK01RUpOk1r7zbQrwxEXZaba/ApPLuSH2SUxPvGLXanN2jr2jUt3NLOE2OSjqmF557dhw0m9Y17R3KyM4MjMtcRjdcRex+trtu7UQqeyhY3wSOikGi5poR4EbQcarp0Kka8HCW/H7nGxNGWEqKcNuH2fd4r33Lzhla9oe0hzXAEEYEG8ELKqvzGzo5Bws0zvu3HmuP5HHUeongVaC5tejKlLK+5nZw2IjXhmW/Fcn9uQREVJoCIiAIiIAiIgCIiAIiIAiLHK/RBNCaAmgxNNQ60BqWzJcMzg6RmkQKVqRdjS49awjN6zC/kh6zvmsk+Vo2RNnJOg/RpdfzvkLzuWee2NY5rTrDnV1BrRUucdQvHFRcIvgRcIvgbSLlsy1GS2rZGtcQGyOYQwk4UOquqtFkOVGcqYA15eC2tG1ADgDpE6hepEjbnha9pY4Va4EEbQVzfs1Zf0h6z/mvljyjoxvfK4mksjWilXGjyGsaBiVnbOOWoXPB5IO5M6OiBpG+782rGiWuRcYvdGWw5PjgBETdEE1N5N+GsrcXHZl+MtEmjJyZpWTQOiK3XnfdUVC2rXlFsbgyj3vIrosFTo9I6gN6HqSSsjVObNlJJMV5vPPfj6y2LBkmGAkxMDS6gJq43DeSvVhykyZz2tDgWaOkHChBdW6h13LQyvbH8syFvKtGi5xMbWkuI0aaJdqFTXuQiqcE7pLwO6i5b8sMaXANkcGXPe1hLWkY1IxI10qsloyvGzQ8p3KAlmiK6VKXCmu9CZ8yhkeG0EGWMOLagGrhcdxC1G5r2QEEQ0IvB034j0l0p7QWxmQNcTSujTnX6iK6te5adiyuHQiaRrmDRaSSLiXD8l5Jv8AEL3M+ZW6UJauKfxSOhaYGyNLHirXChG0bFzPstY/0G8XfNbNmym17gwtexxBLQ9tNIDHR+WKwHLsfOIZKWsJD3BlQ0tNDU+26tyKTWzPZQjLVpM8/Zax/oN4u+a+fZWx/oN4u+ayty1GSLn6DjoiXROgSTQX77q0os1pyk1jtANe9wFS1jakA4F2oeKl1kubI9TT/tXgjVhzasjHNe2Foc0gg1dcReDiuyubJleJsYlqdEuDcDUOrQhwxFKLzNlhjAzSbIDJpaLdDnEtpdo431FPgouTe7JxhGPZVjqLl5TyFZ7QQ6aMPLRQGrgabOaRVe5sqNaQ0Mkc8tDixrauaD0tQ3VXqHKcbywCvPLmiopRzRUscDeHUBu6kUnF3TsJRUlaSujnfY2w/oD15P8AyXZs0DY2tY2oa0AAVJuGF5vKxRW9jpXQA89gBOyhpgeqo4hZLLaRIC5taBzm1OstNCR1VB4KUqk5dptkYUqcOzFL4KxsIiKBYEREAREQBERAEREAREQBERAcGzZLcZHRyN+5Zp8neL+VxFNWiC4ekvFmyZLJHK2W5xZyLDWtWtrz7ukTfruUhRAcK0tmnjFndDoV0dN+k0tAaQSWUNSTS6oC27HZ3NntDyKB/J6Juv0WUPtXSRARuLJEjdKdteVbJI5jHEaJYXGraDDSBxxwW62F7pzKWFoMAbeRc/TJ0TQ9e5ddEBxBYn/UOR0efyWjo1HlUwrgvT4pI5uUY1r9KNrXM0gHDRrRza3EXkFdlalryfFLQyRtcRgSLxuOKA52RXOdPaXPDQfuhRpqAQ13NJ1kAiq25oHG0RyAc1rJATdcSWUHsK2rNZmRt0I2hrdgFFnQHEswmga6JsJk5zix4c0AhxLvvKmoIJ1Ar5ZMmujdZhTSEbJA52oOcBhW+mIXcRAY5maTS3aCOIXCissroI4uTLXwGMjSLdF5ZcQCCSARrI1hSFEBxi2SaSIuiMbYyXEuLSS7RLQGhpN1+JXqxWV7YJWFtHOdMQLr9Jzi3iCF10QHDtdiebG2IN54ENW1H5XsLr60uAKyaMkM0kjYzI2XRPNLQ5rmt0aEOIqLsarsIgI+cnyFgJaNJ9obK5oIo1tRr1kAX0W9bLO51ogeBVrOV0jddpNAC6SIDkPZJFNJI2MyNkDfJLQ5rmjRpRxALSKa9qwHJ8hjkk0QJTKJmsBwLdEBtcKlrSCf3LvIgI9JYpmRsmjbWfSe5wqP+rWra4c06HqLsWGzCKNkY/KAK7dpPWTetlEAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREB//Z" style="height: 50px; transform: translateY(-5%); margin-left: 250px ;">
+        </a>
+        <div class="collapse navbar-collapse" id="navbarColor">
+            <ul class="navbar-nav">
+                <li class="nav-item"><a class="nav-link" href="{% url 'automobile'%}">Automobile</a> </li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'electronic'%}">Electronics</a> </li>                
+                <li class="nav-item "><a class="nav-link" href="{% url 'movietheater'%}">Entertainment</a> </li>
+                <li class="nav-item "><a class="nav-link" href="{% url 'supermarket'%}">Supermarket</a> </li>
+                <li class="nav-item "><a class="nav-link" href="{% url 'telecom'%}">Telecom</a> </li>
+                <li class="nav-item "><a class="nav-link" href="{% url 'logout'%}">Logout</a> </li>
+            </ul>        
+        </div>   
+    </nav>
+                       
+    {% if automobile_data %}
+        <section id="sidebar">
+            <div>
+                <header>
+                    <h6>Filters</h6>
+                </header>
+                <br>
+                <form id="myForm" method="GET" action="{% url 'automobile' %}">
+                    {% csrf_token %}
+                    <div class="scrollable-list">
+                        <h9>Brands</h9>
+                        <br><hr>
+                        {% for item in brands%}
+                        <div class="my-1"> 
+                            <label class="tick">{{ item.brand }} 
+                                <input type="radio" class="restrict-radio" name="selected_brands" value="{{ item.brand }}">
+                                <span class="check"></span> 
+                            </label> 
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="scrollable-list">
+                        <h9>States</h9>
+                        <br><hr>
+                        {% for item in states%}
+                        <div class="my-1"> 
+                            <label class="tick">{{ item.state }} 
+                                <input type="radio" class="restrict-radio" name="selected_states" value="{{ item.state }}">
+                                <span class="check"></span> 
+                            </label> 
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <button type="submit">Apply Filters</button>
+                </form>
+            </div>
+        </section>
+
+        {% if page_obj.has_other_pages %}
+            <div class="pagination">
+                <span class="step-links">
+                    {% if page_obj.has_previous %}
+                        <a href="?{% if checkbox_brands %}selected_brands={{ checkbox_brands }}{% endif %}{% if checkbox_brands and checkbox_states %}&{% endif %}{% if checkbox_states %}selected_states={{ checkbox_states }}{% endif %}{% if not checkbox_brands and not checkbox_states %}page=1{% elif not checkbox_brands %}&page=1{% elif not checkbox_states %}&page=1{% endif %}">&laquo; first</a>
+                        <a href="?{% if checkbox_brands %}selected_brands={{ checkbox_brands }}{% endif %}{% if checkbox_brands and checkbox_states %}&{% endif %}{% if checkbox_states %}selected_states={{ checkbox_states }}{% endif %}&page={{ page_obj.previous_page_number }}">previous</a>
+                    {% endif %}
+
+                    <span class="current">
+                        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+                    </span>
+
+                    {% if page_obj.has_next %}
+                        <a href="?{% if checkbox_brands %}selected_brands={{ checkbox_brands }}{% endif %}{% if checkbox_brands and checkbox_states %}&{% endif %}{% if checkbox_states %}selected_states={{ checkbox_states }}{% endif %}&page={{ page_obj.next_page_number }}">next</a>
+                        <a href="?{% if checkbox_brands %}selected_brands={{ checkbox_brands }}{% endif %}{% if checkbox_brands and checkbox_states %}&{% endif %}{% if checkbox_states %}selected_states={{ checkbox_states }}{% endif %}&page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+                    {% endif %}
+                </span>
+            </div>
+        {% endif %}
+
+        <div id="empInfo">
+            <div class="mapholder"> 
+                <table class="datatable">
+                    <tr>
+                        <th>ID</th>
+                        <th>Dealership Name</th>
+                        <th>Address</th>
+                        <th>Phone</th>
+                        <th>Brand_Name</th>
+                        <th>City</th>
+                        <th>State</th>
+                        <th>Pincode</th>
+                        <th>Google Map</th>
+                    </tr>
+                    {% for item in page_obj %}
+                    <tr>
+                        <td>{{ item.id }}</td>
+                        <td>{{ item.dealership_name }}</td>
+                        <td>{{ item.address }}</td>
+                        <td>{{ item.phone }}</td>
+                        <td>{{ item.brand_name }}</td>
+                        <td>{{ item.city }}</td>
+                        <td>{{ item.state }}</td>
+                        <td>{{ item.pincode }}</td>
+                        <td><a href="https://www.google.com/maps?q={{item.lat}},{{item.lon}}" target="_blank">Open in Google Maps</a></td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>        
+        </div>  
+    {% endif %}
+
+   
+    {% if electronic_data %}
+        <section id="sidebar">
+            <div>
+                <header>
+                    <h6>Filters</h6>
+                </header>
+                <br>
+                <form id="myForm" method="GET" action="{% url 'electronic' %}">
+                    {% csrf_token %}
+                    <div class="scrollable-list">
+                        <h9>Brands</h9>
+                        <br><hr>
+                        {% for item in brands%}
+                        <div class="my-1"> 
+                            <label class="tick">{{ item.brand }} 
+                                <input type="radio" class="restrict-radio" name="selected_brands" value="{{ item.brand }}">
+                                <span class="check"></span> 
+                            </label> 
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="scrollable-list">
+                        <h9>States</h9>
+                        <br><hr>
+                        {% for item in states%}
+                        <div class="my-1"> 
+                            <label class="tick">{{ item.state }} 
+                                <input type="radio" class="restrict-radio" name="selected_states" value="{{ item.state }}">
+                                <span class="check"></span> 
+                            </label> 
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <button type="submit">Apply Filters</button>
+                </form>
+            </div>
+        </section>
+
+        {% if page_obj.has_other_pages %}
+            <div class="pagination">
+                <span class="step-links">
+                    {% if page_obj.has_previous %}
+                        <a href="?{% if checkbox_brands %}selected_brands={{ checkbox_brands }}{% endif %}{% if checkbox_brands and checkbox_states %}&{% endif %}{% if checkbox_states %}selected_states={{ checkbox_states }}{% endif %}{% if not checkbox_brands and not checkbox_states %}page=1{% elif not checkbox_brands %}&page=1{% elif not checkbox_states %}&page=1{% endif %}">&laquo; first</a>
+                        <a href="?{% if checkbox_brands %}selected_brands={{ checkbox_brands }}{% endif %}{% if checkbox_brands and checkbox_states %}&{% endif %}{% if checkbox_states %}selected_states={{ checkbox_states }}{% endif %}&page={{ page_obj.previous_page_number }}">previous</a>
+                    {% endif %}
+
+                    <span class="current">
+                        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+                    </span>
+
+                    {% if page_obj.has_next %}
+                        <a href="?{% if checkbox_brands %}selected_brands={{ checkbox_brands }}{% endif %}{% if checkbox_brands and checkbox_states %}&{% endif %}{% if checkbox_states %}selected_states={{ checkbox_states }}{% endif %}&page={{ page_obj.next_page_number }}">next</a>
+                        <a href="?{% if checkbox_brands %}selected_brands={{ checkbox_brands }}{% endif %}{% if checkbox_brands and checkbox_states %}&{% endif %}{% if checkbox_states %}selected_states={{ checkbox_states }}{% endif %}&page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+                    {% endif %}
+                </span>
+            </div>
+        {% endif %}
+
+        <div id="empInfo">
+            <div class="mapholder"> 
+                <table class="datatable">
+                    <tr>
+                        <th>ID</th>
+                        <th>Brand</th>
+                        <th>Store Type</th>
+                        <th>Store Name</th>
+                        <th>Address</th>
+                        <th>Mobile</th>
+                        <th>Operating Time</th>
+                        <th>Pincode</th>
+                        <th>City</th>
+                        <th>State</th>
+                        <th>Google Map</th>
+                    </tr>
+                    {% for item in page_obj %}
+                    <tr>
+                        <td>{{ item.id }}</td>
+                        <td>{{ item.brand }}</td>
+                        <td>{{ item.type }}</td>
+                        <td>{{ item.store_name }}</td>
+                        <td>{{ item.address }}</td>
+                        <td>{{ item.mobile }}</td>
+                        <td>{{ item.operating_time }}</td>
+                        <td>{{ item.pin_code }}</td>
+                        <td>{{ item.city }}</td>
+                        <td>{{ item.state }}</td>
+                        <td><a href="https://www.google.com/maps?q={{item.lat}},{{item.lon}}" target="_blank">Open in Google Maps</a></td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>        
+        </div>  
+    {% endif %}
+    
+    {% if movietheater_data %}
+        <section id="sidebar">
+            <div>
+                <header>
+                    <h6>Filters</h6>
+                </header>
+                <br>
+                <form id="myForm" method="GET" action="{% url 'movietheater' %}">
+                    {% csrf_token %}
+                    <div class="scrollable-list">
+                        <h9>Brands</h9>
+                        <br><hr>
+                        {% for item in brands%}
+                        <div class="my-1"> 
+                            <label class="tick">{{ item.brand }} 
+                                <input type="radio" class="restrict-radio" name="selected_brands" value="{{ item.brand }}">
+                                <span class="check"></span> 
+                            </label> 
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="scrollable-list">
+                        <h9>States</h9>
+                        <br><hr>
+                        {% for item in states%}
+                        <div class="my-1"> 
+                            <label class="tick">{{ item.state }} 
+                                <input type="radio" class="restrict-radio" name="selected_states" value="{{ item.state }}">
+                                <span class="check"></span> 
+                            </label> 
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <button type="submit">Apply Filters</button>
+                </form>
+            </div>
+        </section>
+
+        {% if page_obj.has_other_pages %}
+            <div class="pagination">
+                <span class="step-links">
+                    {% if page_obj.has_previous %}
+                        <a href="?{% if checkbox_brands %}selected_brands={{ checkbox_brands }}{% endif %}{% if checkbox_brands and checkbox_states %}&{% endif %}{% if checkbox_states %}selected_states={{ checkbox_states }}{% endif %}{% if not checkbox_brands and not checkbox_states %}page=1{% elif not checkbox_brands %}&page=1{% elif not checkbox_states %}&page=1{% endif %}">&laquo; first</a>
+                        <a href="?{% if checkbox_brands %}selected_brands={{ checkbox_brands }}{% endif %}{% if checkbox_brands and checkbox_states %}&{% endif %}{% if checkbox_states %}selected_states={{ checkbox_states }}{% endif %}&page={{ page_obj.previous_page_number }}">previous</a>
+                    {% endif %}
+
+                    <span class="current">
+                        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+                    </span>
+
+                    {% if page_obj.has_next %}
+                        <a href="?{% if checkbox_brands %}selected_brands={{ checkbox_brands }}{% endif %}{% if checkbox_brands and checkbox_states %}&{% endif %}{% if checkbox_states %}selected_states={{ checkbox_states }}{% endif %}&page={{ page_obj.next_page_number }}">next</a>
+                        <a href="?{% if checkbox_brands %}selected_brands={{ checkbox_brands }}{% endif %}{% if checkbox_brands and checkbox_states %}&{% endif %}{% if checkbox_states %}selected_states={{ checkbox_states }}{% endif %}&page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+                    {% endif %}
+                </span>
+            </div>
+        {% endif %}
+
+        <div id="empInfo">
+            <div class="mapholder"> 
+                <table class="datatable">
+                    <tr>
+                        <th>ID</th>
+                        <th>Brand_Name</th>
+                        <th>Region</th>
+                        <th>Address</th>
+                        <th>Pincode</th>
+                        <th>City</th>
+                        <th>State</th>
+                        <th>Google Map</th>
+                    </tr>
+                    {% for item in page_obj %}
+                    <tr>
+                        <td>{{ item.id }}</td>
+                        <td>{{ item.brand_name }}</td>
+                        <td>{{ item.region }}</td>
+                        <td>{{ item.address }}</td>
+                        <td>{{ item.pin_code }}</td>
+                        <td>{{ item.city }}</td>
+                        <td>{{ item.state }}</td>
+                        <td><a href="https://www.google.com/maps?q={{item.lat}},{{item.lon}}" target="_blank">Open in Google Maps</a></td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>        
+        </div>  
+    {% endif %}
+
+    {% if supermarket_data %}
+        <section id="sidebar">
+            <div>
+                <header>
+                    <h6>Filters</h6>
+                </header>
+                <br>
+                <form id="myForm" method="GET" action="{% url 'supermarket' %}">
+                    {% csrf_token %}
+                    <div class="scrollable-list">
+                        <h9>Brands</h9>
+                        <br><hr>
+                        {% for item in brands%}
+                        <div class="my-1"> 
+                            <label class="tick">{{ item.brand }} 
+                                <input type="radio" class="restrict-radio" name="selected_brands" value="{{ item.brand }}">
+                                <span class="check"></span> 
+                            </label> 
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="scrollable-list">
+                        <h9>States</h9>
+                        <br><hr>
+                        {% for item in states%}
+                        <div class="my-1"> 
+                            <label class="tick">{{ item.state }} 
+                                <input type="radio" class="restrict-radio" name="selected_states" value="{{ item.state }}">
+                                <span class="check"></span> 
+                            </label> 
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <button type="submit">Apply Filters</button>
+                </form>
+            </div>
+        </section>
+
+        {% if page_obj.has_other_pages %}
+            <div class="pagination">
+                <span class="step-links">
+                    {% if page_obj.has_previous %}
+                        <a href="?{% if checkbox_brands %}selected_brands={{ checkbox_brands }}{% endif %}{% if checkbox_brands and checkbox_states %}&{% endif %}{% if checkbox_states %}selected_states={{ checkbox_states }}{% endif %}{% if not checkbox_brands and not checkbox_states %}page=1{% elif not checkbox_brands %}&page=1{% elif not checkbox_states %}&page=1{% endif %}">&laquo; first</a>
+                        <a href="?{% if checkbox_brands %}selected_brands={{ checkbox_brands }}{% endif %}{% if checkbox_brands and checkbox_states %}&{% endif %}{% if checkbox_states %}selected_states={{ checkbox_states }}{% endif %}&page={{ page_obj.previous_page_number }}">previous</a>
+                    {% endif %}
+
+                    <span class="current">
+                        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+                    </span>
+
+                    {% if page_obj.has_next %}
+                        <a href="?{% if checkbox_brands %}selected_brands={{ checkbox_brands }}{% endif %}{% if checkbox_brands and checkbox_states %}&{% endif %}{% if checkbox_states %}selected_states={{ checkbox_states }}{% endif %}&page={{ page_obj.next_page_number }}">next</a>
+                        <a href="?{% if checkbox_brands %}selected_brands={{ checkbox_brands }}{% endif %}{% if checkbox_brands and checkbox_states %}&{% endif %}{% if checkbox_states %}selected_states={{ checkbox_states }}{% endif %}&page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+                    {% endif %}
+                </span>
+            </div>
+        {% endif %}
+
+        <div id="empInfo">
+            <div class="mapholder"> 
+                <table class="datatable">
+                    <tr>
+                        <th>ID</th>
+                        <th>Store_Name</th>
+                        <th>Address</th>
+                        <th>City</th>
+                        <th>State</th>
+                        <th>Pincode</th>
+                        <th>Store Type</th>
+                        <th>Google Map</th>
+                    </tr>
+                    {% for item in page_obj %}
+                    <tr>
+                        <td>{{ item.id }}</td>
+                        <td>{{ item.store_name }}</td>
+                        <td>{{ item.address }}</td>
+                        <td>{{ item.city }}</td>
+                        <td>{{ item.state }}</td>
+                        <td>{{ item.pincode }}</td>
+                        <td>{{ item.store_type }}</td>
+                        <td><a href="https://www.google.com/maps?q={{item.lat}},{{item.lon}}" target="_blank">Open in Google Maps</a></td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>        
+        </div>  
+    {% endif %}
+
+    {% if telecom_data %}
+
+        <section id="sidebar">
+            <div>
+                <header>
+                    <h6>Filters</h6>
+                </header>
+                <br>
+                <form id="myForm" method="GET" action="{% url 'telecom' %}">
+                    {% csrf_token %}
+                    <div class="scrollable-list">
+                        <h9>Brands</h9>
+                        <br><hr>
+                        {% for item in brands%}
+                        <div class="my-1"> 
+                            <label class="tick">{{ item.brand }} 
+                                <input type="radio" class="restrict-radio" name="selected_brands" value="{{ item.brand }}">
+                                <span class="check"></span> 
+                            </label> 
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="scrollable-list">
+                        <h9>States</h9>
+                        <br><hr>
+                        {% for item in states%}
+                        <div class="my-1"> 
+                            <label class="tick">{{ item.state }} 
+                                <input type="radio" class="restrict-radio" name="selected_states" value="{{ item.state }}">
+                                <span class="check"></span> 
+                            </label> 
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <button type="submit">Apply Filters</button>
+                </form>
+            </div>
+        </section>
+
+        {% if page_obj.has_other_pages %}
+            <div class="pagination">
+                <span class="step-links">
+                    {% if page_obj.has_previous %}
+                        <a href="?{% if checkbox_brands %}selected_brands={{ checkbox_brands }}{% endif %}{% if checkbox_brands and checkbox_states %}&{% endif %}{% if checkbox_states %}selected_states={{ checkbox_states }}{% endif %}{% if not checkbox_brands and not checkbox_states %}page=1{% elif not checkbox_brands %}&page=1{% elif not checkbox_states %}&page=1{% endif %}">&laquo; first</a>
+                        <a href="?{% if checkbox_brands %}selected_brands={{ checkbox_brands }}{% endif %}{% if checkbox_brands and checkbox_states %}&{% endif %}{% if checkbox_states %}selected_states={{ checkbox_states }}{% endif %}&page={{ page_obj.previous_page_number }}">previous</a>
+                    {% endif %}
+
+                    <span class="current">
+                        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+                    </span>
+
+                    {% if page_obj.has_next %}
+                        <a href="?{% if checkbox_brands %}selected_brands={{ checkbox_brands }}{% endif %}{% if checkbox_brands and checkbox_states %}&{% endif %}{% if checkbox_states %}selected_states={{ checkbox_states }}{% endif %}&page={{ page_obj.next_page_number }}">next</a>
+                        <a href="?{% if checkbox_brands %}selected_brands={{ checkbox_brands }}{% endif %}{% if checkbox_brands and checkbox_states %}&{% endif %}{% if checkbox_states %}selected_states={{ checkbox_states }}{% endif %}&page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+                    {% endif %}
+                </span>
+            </div>
+        {% endif %}
+
+            <div id="empInfo">
+                <div class="mapholder"> 
+                    <table class="datatable">
+                        <tr>
+                            <th>ID</th>
+                            <th>Store Type</th>
+                            <th>Store_Name</th>
+                            <th>Address</th>
+                            <th>Phone</th>
+                            <th>Operating Time</th>
+                            <th>City</th>
+                            <th>State</th>
+                            <th>Brand Name</th>
+                            <th>Pincode</th>
+                            <th>Google Map</th>
+                        </tr>
+                        {% for item in page_obj %}
+                        <tr>
+                            <td>{{ item.id }}</td>
+                            <td>{{ item.store_type}}
+                            <td>{{ item.store_name }}</td>
+                            <td>{{ item.address }}</td>
+                            <td>{{ item.phone }}</td>
+                            <td>{{ item.operating_time}}</td>
+                            <td>{{ item.city }}</td>
+                            <td>{{ item.state }}</td>
+                            <td>{{ item.brand_name }}</td>
+                            <td>{{ item.pincode }}</td>
+                            <td><a href="https://www.google.com/maps?q={{item.lat}},{{item.lon}}" target="_blank">Open in Google Maps</a></td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                </div>        
+            </div>  
+        {% endif %}
+
+</body>
+</html>

@@ -1,0 +1,120 @@
+<!------ Include the above in your HEAD tag ---------->
+
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Login Page</title>
+   <!--Made with love by Mutiullah Samim -->
+   
+	<!--Bootsrap 4 CDN-->
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    
+    <!--Fontawesome CDN-->
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+
+	<!--Custom styles-->
+	{% comment %} <link rel="stylesheet" type="text/css" href="styles.css"> {% endcomment %}
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <style>
+
+        .panel-primary {
+            border: 2px solid rgb(69, 146, 242); 
+            border-radius: 8px; 
+        }
+        .col-md-5 {
+            margin-left: 480px;
+        }
+        .panel-title {
+            width: 300px;
+            height: 25px;
+            margin-top: 0;
+            margin-bottom: 0;
+            font-size: 15px;
+            background-color: rgb(69, 146, 242);
+            border-radius: 8px;
+            transition: 0.25;
+            
+        }
+        .panel-heading {
+            
+            background-color: rgb(69, 146, 242);
+            width: 607px;
+            padding: 10px;
+            
+        }
+        .panel-heading .panel-title {
+            color: white;
+            text-align: left;
+
+        }
+        .pull-right {
+            margin-left: 380px;
+        }
+        
+        .form-group {
+            width: 565px;
+            height: 100;
+            margin-left: 20px;
+            margin-top: 15px;
+        }
+        .btn-primary {
+            width: 100px;
+            height: 40px;
+            font-size: 23px;
+            border-radius: 8px;
+            transition: 0.25;
+        }
+    </style>
+</head>
+<body>
+    <div class="col-md-5">
+		<br/>
+		<h1 class="text-center" style="margin:40px 0px 20px 0px">
+			<a href="https://floorwalk.in">
+				<img src="https://portal.floorwalk.in/static/registration/logo_200x120.f1c17dff0c9e.png"/>
+			</a>
+		</h1>
+		<br/>
+		<div class="panel-primary">
+			<div class="panel-heading">
+				<h3 class="panel-title">Login to your <b>existing FloorWalk account</b></h3>
+			</div>
+			<div class="panel-body">
+				
+				
+				<form autocomplete="off" action="" method="POST">
+					{% csrf_token%}
+					<div class="form-group">
+						<label>Email Address</label>
+						<input type="email" name="email" required autofocus placeholder="name@example.com" maxlength="254" class="form-control input-lg" />
+						<p class="help-block">
+						
+						</p>
+					</div>
+					<div class="form-group">
+						<label>Password:</label>
+						<input type="password" name="password" placeholder="your password" required class="form-control input-lg" />
+						<p class="help-text">
+						
+						</p>
+					</div>
+					<br/>
+					<div class="form-group">
+						<button class="btn-primary" type="submit">Login</button>
+						<a class="pull-right" href="signup">Sign Up</a>
+					</div>
+				</form>
+			</div>
+            {% if error_message %}
+                <h6 style="color:red;">{{error_message }}</h6>
+            {% endif %}
+			{% comment %} <div class="panel-footer">
+				<p>For client login, <a href="/auth/client/login ">click here</a></p>
+				<p>For agency login, <a href="/auth/agency/login ">click here</a></p>
+			</div> {% endcomment %}
+		</div>
+	</div>
+</body>
+</html>

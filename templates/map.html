@@ -1,0 +1,338 @@
+.mapholder{
+    height: 590px;
+    width: 95%;
+    margin-left: 5%;
+}
+#map{
+    height: 100%;
+    margin-left: 29%;
+}
+
+<div class="pageholder">
+    {% comment %} <div class="titleholder"> 
+        <div class="title"> Google Maps API Displaying Markers on the Map </div> 
+    </div> {% endcomment %}
+    <div class="linkholder">
+        <div class="mapholder"> 
+            <div id="map"> </div>
+            {% comment %} <script async
+                src="https://maps.googleapis.com/maps/api/js?key=AIzaSyACuBCp0Cpu0IlQq1EUM30MI7lD8FbF3-Q&callback=initMap">
+            </script> {% endcomment %}
+            
+        </div>        
+     </div>
+</div>
+
+<script> 
+    let map;
+    let cluster_markers = []
+    var markerCluster;
+    function initMap(){
+
+        var locations = {{ locations|safe}};
+        for (let i = 0; i < locations.length; i++) {
+            console.log(locations[i]);}
+        var firstLocation = locations[0]
+        var infoWindow = []
+
+        map = new google.maps.Map(document.getElementById("map"),{
+            center: { lat: firstLocation.lat, lng: firstLocation.lng }, 
+            zoom: 4,
+        }
+        );
+
+        const customMarker = {
+            url: "https://cdn.icon-icons.com/icons2/2699/PNG/512/acer_logo_icon_168703.png" , // Replace with your image URL using Django's static tag
+            scaledSize: new google.maps.Size(15, 15), // Adjust the size as needed
+        };
+
+        locations.forEach(function (location){
+            var marker = new google.maps.Marker({
+                position: {lat: location.lat, lng: location.lng}, 
+                map: map, 
+                title: location.name,
+                
+            });
+
+            var infowindow = new google.maps.InfoWindow({
+                content: location.name, 
+            });
+
+            infoWindow.push(infowindow)
+
+            marker.addListener('click', function(){
+                infoWindow.forEach(function(iw){
+                    iw.close();
+                });
+
+                infowindow.open(map, marker)
+            });
+            cluster_markers.push(marker)
+        });
+        markerCluster = new MarkerClusterer(map, cluster_markers,
+          { imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m1.png',
+          styles: [{
+            height: 48,
+            width: 48,
+            textColor: '#0000FF',
+            textSize: 14,
+            anchorText: [0, 0],
+            anchorIcon: [24, 48]
+        }]
+        });
+    }
+    window.initMap = initMap
+</script>
+
+
+<script type='text/javascript'>// For Filters
+
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const checkboxes = document.querySelectorAll('.restrict-checkbox');
+        const maxAllowed = 2; // Change this to limit the number of selections
+    
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                const checkedCheckboxes = document.querySelectorAll('.restrict-checkbox:checked');
+                if (checkedCheckboxes.length > maxAllowed) {
+                    checkbox.checked = false;
+                } 
+            });
+        });
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const checkboxes = document.querySelectorAll('.limit-checkbox');
+        const maxAllowed = 2; // Change this to limit the number of selections
+    
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                const checkedCheckboxes = document.querySelectorAll('.limit-checkbox:checked');
+                if (checkedCheckboxes.length > maxAllowed) {
+                    checkbox.checked = false;
+                } 
+            });
+        });
+    });
+    
+
+    function UpdateMapMarkers(locations) {
+        let cluster_markers = []
+        var markerCluster;
+        var infoWindow = []
+        var markers = [];
+        // Clear existing markers
+        infoWindow.forEach(iw => {
+            iw.close();
+        });
+        markers.forEach(marker => {
+            marker.setMap(null);
+        });
+    
+        // Update map with new markers
+        locations.forEach(location => {
+            const marker = new google.maps.Marker({
+                position: { lat: location.lat, lng: location.lng },
+                map: map,
+                title: location.name,
+            });
+    
+            const infowindow = new google.maps.InfoWindow({
+                content: location.name,
+            });
+    
+            infoWindow.push(infowindow);
+    
+            marker.addListener('click', function() {
+                infoWindow.forEach(iw => {
+                    iw.close();
+                });
+                infowindow.open(map, marker);
+            });
+            cluster_markers.push(marker)
+            markers.push(marker);
+        });
+        markerCluster = new MarkerClusterer(map, cluster_markers,
+      { imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m1.png',
+      styles: [{
+        height: 48,
+        width: 48,
+        textColor: '#0000FF',
+        textSize: 14,
+        anchorText: [0, 0],
+        anchorIcon: [24, 48]
+    }]
+    })
+}
+
+    function showChecked() {
+        const checkboxes = document.querySelectorAll('input[name="selected_items"]:checked');
+        const checkbox = document.querySelectorAll('input[name="selected_states"]:checked');
+        const checkedItems = document.getElementById('checkedItems');
+        const checkedStates = document.getElementById('checkedStates');
+        const checkvalues = [];
+        const checkvalue = [];
+        checkedItems.innerHTML = ''; // Clear the previous content
+
+        checkboxes.forEach((checkbox) => {
+            checkvalues.push(checkbox.value);
+            const li = document.createElement('li');
+            li.textContent = checkbox.value;
+            checkedItems.appendChild(li);
+        });
+        checkbox.forEach((check) => {
+            checkvalue.push(check.value);
+            const li = document.createElement('li');
+            li.textContent = check.value;
+            checkedStates.appendChild(li);
+        });
+        for (let i = 0; i < checkvalues.length; i++) {
+            console.log(checkvalues[i]);}
+
+        const dataToSend = {
+                checkvalues: checkvalues,
+                checkvalue: checkvalue
+            };
+       
+        fetch('{% url 'home' %}', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(dataToSend),
+          })
+          .then(response => {
+            if (response.ok) {
+              return response.json();
+            }
+            throw new Error('Network response was not ok.');
+          })
+          .then(data => {
+            UpdateMapMarkers(data.locations); // Handle success response from Django
+          })
+          .catch(error => {
+            console.error('Error:', error); // Handle error
+          });
+        }
+
+        
+
+    document.addEventListener("DOMContentLoaded", function () {
+        var filterBtn = document.getElementById('filter-btn');
+        var btnTxt = document.getElementById('btn-txt');
+        var filterAngle = document.getElementById('filter-angle');
+
+        $('#filterbar').collapse(false);
+        var count = 0, count2 = 0;
+        function changeBtnTxt() {
+            $('#filterbar').collapse(true);
+            count++;
+            if (count % 2 != 0) {
+                filterAngle.classList.add("fa-angle-right");
+                btnTxt.innerText = "show filters"
+                filterBtn.style.backgroundColor = "#36a31b";
+            }
+            else {
+                filterAngle.classList.remove("fa-angle-right")
+                btnTxt.innerText = "hide filters"
+                filterBtn.style.backgroundColor = "#ff935d";
+            }
+
+        }
+
+        
+    });</script>
+
+
+    @csrf_exempt
+    def home(request):
+       
+        if request.method == 'POST':
+            data = json.loads(request.body)
+            checkvalues = data.get('checkvalues')
+            checkvalue = data.get('checkvalue')
+            print(checkvalues)
+            print(checkvalue)
+            update_locations = Service.objects.all()[1:20]
+            #print(update_locations)
+            eligable_locations = Service.objects.all()
+            # brand1_data = Service.objects.filter(brand='Acer')
+            # brand2_data = Service.objects.filter(brand='HP')
+            # combined_data = brand1_data | brand2_data
+            # print(combined_data)
+            locations = []
+            brands = []
+            states = []
+            for a in update_locations: 
+                data = {
+                        'lat': float(a.lat), 
+                        'lng': float(a.lon), 
+                        'name': a.store_name
+                    }
+                locations.append(data)
+    
+            for b in eligable_locations:
+                data = {
+                    'brand': b.brand
+                }
+                if data not in brands:
+                    brands.append(data)
+    
+            for s in eligable_locations:
+                data = {
+                    'state': s.state
+                }
+                if data not in states:
+                    states.append(data)
+            #print(locations, brands, states)
+            context = {
+                    "locations": locations,
+                    "states": states,
+                    "brands": brands
+            }
+    
+            return JsonResponse(context)
+        
+        else:
+    
+            eligable_locations = Service.objects.all()
+            current_locations = Service.objects.all()[1:10]
+            locations = []
+            brands = []
+            states = []
+            count=0
+            filtered_services = Service.objects.filter(brand='Acer')
+            for a in filtered_services:
+                count+=1
+            # print(count)
+            for a in current_locations: 
+                data = {
+                        'lat': float(a.lat), 
+                        'lng': float(a.lon), 
+                        'name': a.store_name
+                    }
+                locations.append(data)
+    
+            for b in eligable_locations:
+                data = {
+                    'brand': b.brand
+                }
+                if data not in brands:
+                    brands.append(data)
+    
+            for s in eligable_locations:
+                data = {
+                    'state': s.state
+                }
+                if data not in states:
+                    states.append(data)
+    
+            context = {
+                    "locations": locations,
+                    "states": states,
+                    "brands": brands
+            }
+            #print("floorwalk is available for service")
+            return render(request, 'home.html', context)
+    
