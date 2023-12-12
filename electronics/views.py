@@ -26,7 +26,7 @@ def signup(request):
         password = request.POST.get('password')
         client_data = Client(email=email, phone=phone, password=password)
         client_data.save()
-        return render(request, 'login.html')
+        return render(request, 'home.html')
     else:
         return render(request, 'signup.html')
     
