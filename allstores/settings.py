@@ -83,11 +83,11 @@ WSGI_APPLICATION = 'allstores.wsgi.application'
 DATABASES = {
    'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'Floorwalk_1',
+        'NAME': 'electronicstores',
         'USER': 'postgres',
-        'PASSWORD': 'FloorWalk12',
-        'HOST': 'database-1.cf33phgi7z4s.ap-south-1.rds.amazonaws.com',
-        'PORT': '5432',
+        'PASSWORD': '12',
+        'HOST': 'localhost',
+        
     }
     # 'default': {
     #     'ENGINE': 'django.db.backends.sqlite3',
