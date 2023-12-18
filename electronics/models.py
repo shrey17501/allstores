@@ -1,27 +1,6 @@
 from django.db import models
 from django.utils import timezone
 # Create your models here.
-class Service(models.Model):
-    brand = models.CharField(max_length=50, null=True)
-    type = models.CharField(max_length=50, null=True)
-    store_name = models.CharField(max_length=200, null=True)
-    address = models.CharField(max_length=600, null=True)
-    mobile = models.CharField(max_length=300, null=True)
-    operating_time = models.CharField(max_length=400, null=True)
-    lat = models.CharField(max_length=30, null=True)
-    lon = models.CharField(max_length=30, null=True)
-    pin_code = models.CharField(max_length=20, null=True)
-    city = models.CharField(max_length=100, null=True)
-    state = models.CharField(max_length=100, null=True)
-    status = models.CharField(max_length=10, null=True)
-    page_number = models.CharField(max_length=100, null=True)
-    brand_logo = models.CharField(max_length=200, null=True)
-    new_lat = models.CharField(max_length=30, null=True)
-    new_lon = models.CharField(max_length=30, null=True)
-
-
-    def __str__(self):
-        return self.brand
     
 class Electronic(models.Model):
     brand = models.CharField(max_length=50, null=True)
